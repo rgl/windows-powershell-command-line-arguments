@@ -18,10 +18,28 @@ jobs:
         run: |
           Import-Module Pester -Version 5.7.1
           $result = Invoke-Pester `
-            -PassThru `
-            -CI `
-            -Output Detailed
+            -Configuration (New-PesterConfiguration @{
+              Run = @{
+                PassThru = $true
+                Exit = $true
+              }
+              Output = @{
+                Verbosity = 'Detailed'
+              }
+              TestResult = @{
+                Enabled = $true
+                OutputFormat = 'NUnit3'
+                OutputPath = 'testResults.xml'
+              }
+            })
           if ($result.FailedCount) {
             Write-Error "Tests failed: $($result.FailedCount) failures"
             Exit 1
           }
+      - name: Test Report
+        uses: dorny/test-reporter@v3
+        if: ${{ !cancelled() }}
+        with:
+          name: Tests
+          path: testResults.xml
+          reporter: dotnet-nunit
