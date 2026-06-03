@@ -190,6 +190,9 @@ public static class WindowsCommandLineArguments
     [DllImport("shell32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
     private static extern IntPtr CommandLineToArgvW([MarshalAs(UnmanagedType.LPWStr)] string lpCmdLine, out int pNumArgs);
 
+    [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern IntPtr LocalFree(IntPtr hMem);
+
     public static string[] SplitCommandLine(string commandLine)
     {
         int argc;
@@ -211,7 +214,7 @@ public static class WindowsCommandLineArguments
         }
         finally
         {
-            Marshal.FreeHGlobal(argv);
+            LocalFree(argv);
         }
     }
 }
